@@ -5,7 +5,7 @@ import joblib
 
 #upload models
 from tensorflow.keras.models import load_model
-nn_model = load_model("neural_model.h5" , compile=False)
+nn_model = load_model("neural_model_fixed.keras", compile=False)
 ml_model = joblib.load("Best_ml_model.pkl")  
 
 #main page
