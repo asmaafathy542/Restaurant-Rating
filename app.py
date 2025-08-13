@@ -3,7 +3,6 @@ import pandas as pd
 import joblib
 import os
 from tensorflow.keras.models import load_model
-from keras.saving import legacy  # لتحميل الموديل القديم بصيغة H5
 
 # --- إعداد وتحميل الموديلات ---
 keras_model_path = "neural_model_fixed.keras"
@@ -12,7 +11,7 @@ h5_model_path = "neural_model.h5"
 # لو الموديل الجديد مش موجود، نحوله من القديم
 if not os.path.exists(keras_model_path):
     print("تحويل الموديل من H5 إلى Keras format...")
-    old_model = legacy.load_model(h5_model_path, compile=False)
+    old_model = load_model(h5_model_path, compile=False)
     old_model.save(keras_model_path)
     print(f"تم التحويل: {keras_model_path}")
 
