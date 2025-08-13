@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 
+
 #upload models
 from tensorflow.keras.models import load_model
 nn_model = load_model("neural_model.h5" , compile=False)
@@ -70,8 +71,8 @@ elif page == "Prediction":
         "Whitefield", "Banashankari", "Bannerghatta Road", "Basavanagudi"
     ])
 
-    listed_type = st.selectbox("Listed In (Type)",
-        "Buffet", "Cafes", "Delivery", "Desserts"
+    listed_type = st.selectbox("Listed In (Type)",[
+        "Buffet", "Cafes", "Delivery", "Desserts" ]
     )
 
     # --- تجهيز الـ input بنفس الأعمدة اللي اتدربت عليها الموديلات ---
@@ -100,4 +101,4 @@ elif page == "Prediction":
         nn_pred = nn_model.predict(input_data)[0]
 
         st.success(f"ML Model Prediction: **{ml_pred:.2f}**")
-st.success(f"Neural Network Prediction: **{nn_pred:.2f}**")
+        st.success(f"Neural Network Prediction: **{nn_pred:.2f}**")
