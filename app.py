@@ -72,7 +72,7 @@ elif page == "Prediction":
 
     listed_type = st.selectbox("Listed In (Type)",
         "Buffet", "Cafes", "Delivery", "Desserts"
-    ])
+    )
 
     # --- تجهيز الـ input بنفس الأعمدة اللي اتدربت عليها الموديلات ---
     input_data = pd.DataFrame({
