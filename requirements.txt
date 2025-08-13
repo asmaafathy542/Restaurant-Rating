@@ -1,9 +1,9 @@
 streamlit
 pandas
-tensorflow
-joblib
-Pillow
 numpy
-scikit-learn
+joblib
+scikit-learn==1.3.0
+tensorflow==2.13.0
+
 
 
