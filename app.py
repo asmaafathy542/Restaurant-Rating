@@ -1,21 +1,30 @@
 import streamlit as st
 import pandas as pd
 import joblib
-
-
-#upload models
+import os
 from tensorflow.keras.models import load_model
-nn_model = load_model("neural_model_fixed.keras", compile=False)
-ml_model = joblib.load("Best_ml_model.pkl")  
+from keras.saving import legacy  # لتحميل الموديل القديم بصيغة H5
 
-#main page
+# --- إعداد وتحميل الموديلات ---
+keras_model_path = "neural_model_fixed.keras"
+h5_model_path = "neural_model.h5"
+
+# لو الموديل الجديد مش موجود، نحوله من القديم
+if not os.path.exists(keras_model_path):
+    print("تحويل الموديل من H5 إلى Keras format...")
+    old_model = legacy.load_model(h5_model_path, compile=False)
+    old_model.save(keras_model_path)
+    print(f"تم التحويل: {keras_model_path}")
+
+# تحميل الموديلات
+nn_model = load_model(keras_model_path, compile=False)
+ml_model = joblib.load("Best_ml_model.pkl")
+
+# --- إعداد واجهة Streamlit ---
 st.set_page_config(page_title="Restaurant Ratings", layout="wide")
+page = st.sidebar.selectbox("Select a page", ["Analysis", "Prediction"])
 
-
-page = st.sidebar.selectbox("Select a page " , ["Analysis", "Prediction"])
-
-#first page Analysis Page 
-
+# --- الصفحة الأولى: التحليل ---
 if page == "Analysis":
     st.title("Exploratory Data Analysis")
 
@@ -37,27 +46,11 @@ if page == "Analysis":
     st.markdown("### 6. What kind of food is more popular in a locality?")
     st.image("top_cuisines_across_locations.png")
 
-
-
-  #  st.markdown("### 3. Online Order Effect")
-   # st.image("eda_charts/online_order_effect.png")
-
-  #  st.markdown("### 4. Restaurant Type Popularity")
-  #  st.image("eda_charts/rest_type_counts.png")
-
-  #  st.markdown("> **Key Insights:**")
-   # st.markdown("""
-  #  - Most restaurants have a rating between 3.0 and 4.0  
-   # - Restaurants allowing online orders tend to have slightly higher ratings  
-  #  - Quick Bites and Casual Dining are the most common types  
-  #  - Votes positively correlate with ratings  
-   # """)
-
-#second page Prediction Page 
+# --- الصفحة الثانية: التنبؤ ---
 elif page == "Prediction":
     st.title("Restaurant Rating Prediction")
 
-  #user inputs
+    # إدخال المستخدم
     votes = st.number_input("Votes", min_value=0, step=1)
     approx_cost = st.number_input("Approximate Cost for Two People", min_value=0, step=1)
     online_order = st.selectbox("Online Order Available?", ["Yes", "No"])
@@ -71,11 +64,11 @@ elif page == "Prediction":
         "Whitefield", "Banashankari", "Bannerghatta Road", "Basavanagudi"
     ])
 
-    listed_type = st.selectbox("Listed In (Type)",[
-        "Buffet", "Cafes", "Delivery", "Desserts" ]
-    )
+    listed_type = st.selectbox("Listed In (Type)", [
+        "Buffet", "Cafes", "Delivery", "Desserts"
+    ])
 
-    # --- تجهيز الـ input بنفس الأعمدة اللي اتدربت عليها الموديلات ---
+    # تجهيز البيانات بنفس الأعمدة اللي اتدربت عليها الموديلات
     input_data = pd.DataFrame({
         'votes': [votes],
         'approx_cost(for two people)': [approx_cost],
@@ -95,10 +88,10 @@ elif page == "Prediction":
         'listed_in(type)_Desserts': [1 if listed_type == "Desserts" else 0],
     })
 
- #prediction
-    if st.button(" Predict"):
+    # التنبؤ
+    if st.button("Predict"):
         ml_pred = ml_model.predict(input_data)[0]
-        nn_pred = nn_model.predict(input_data)[0]
+        nn_pred = nn_model.predict(input_data)[0][0]  # [0][0] عشان يطلع رقم صافي
 
         st.success(f"ML Model Prediction: **{ml_pred:.2f}**")
         st.success(f"Neural Network Prediction: **{nn_pred:.2f}**")
